@@ -1,2 +1,2 @@
 # pyDoujinshiInfo
-REST API wrapper for doujinshi.info
+REST API wrapper for doujinshi.info (WIP)
