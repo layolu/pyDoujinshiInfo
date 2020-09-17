@@ -1,0 +1,1 @@
+from pyDoujinshiInfo.api import API
