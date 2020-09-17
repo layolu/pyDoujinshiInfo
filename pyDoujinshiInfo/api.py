@@ -6,8 +6,9 @@ import tortilla
 
 class API:
     ENDPOINT = 'https://api.doujinshi.info/v1/'
-    def __init__(self, tortilla_debug=False, refresh_deadline_sec=30):
-        self._api = tortilla.wrap(self.ENDPOINT, debug=tortilla_debug)
+    def __init__(self, refresh_deadline_sec=30, 
+        tortilla_debug=False, tortilla_cache=tortilla.cache.DictCache(), tortilla_cache_lifetime=None):
+        self._api = tortilla.wrap(self.ENDPOINT, cache=tortilla_cache, cache_lifetime=tortilla_cache_lifetime, debug=tortilla_debug)
         self.refresh_deadline_sec = refresh_deadline_sec
 
     ### Auth
@@ -37,7 +38,7 @@ class API:
         if self.expires_at - datetime.now() < timedelta(seconds=self.refresh_deadline_sec):
             res = self._api.auth.login.post(params={
               'user': self.me['sub'], 'refresh_token': self.refresh_token
-            })
+            }, cache_lifetime=None)
             self.set_access_token(res.access_token)
         else:
             pass
@@ -214,7 +215,8 @@ class PaginatedResults:
         self.method = method
         self.paginated_key = paginated_key
         try:
-            self.res = getattr(self._wrap, self.method)(params=self.params, **self.req_options)
+            #self.res = getattr(self._wrap, self.method)(params=self.params, **self.req_options)
+            self.res = self._wrap.request(self.method, params=self.params, **self.req_options)
         except requests.exceptions.HTTPError:
             raise
         if self.paginated_key:
@@ -242,8 +244,8 @@ class PaginatedResults:
             self.params.update({'page': page.meta.current_page + 1, 
                 'limit': page.meta.per_page})
             try:
-                self.res = getattr(self._wrap, self.method)(
-                    params=self.params, **self.req_options)
+                #self.res = getattr(self._wrap, self.method)(
+                self.res = self._wrap.request(self.method, params=self.params, **self.req_options)
             except requests.exceptions.HTTPError:
                 raise
             page = self._get_page(self.res)
