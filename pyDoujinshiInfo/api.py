@@ -91,7 +91,7 @@ class API:
     def get_doujinshi_changelog(self, slug: str, page=1, limit=24) -> PaginatedResults:
         return PaginatedResults(self._api.book(slug).changelog.get, params={'page': page, 'limit': limit})
 
-    def create_doujinshi(self, name_japanese: str, **kwargs: Union[str, BinaryIO])　-> Bunch:
+    def create_doujinshi(self, name_japanese: str, **kwargs: Union[str, BinaryIO]) -> Bunch:
         params = {'name_japanese': name_japanese}
         for key in ('name_romaji', 'name_english', 'date_released', 'pages', 'price', 
             'is_copybook', 'is_anthology', 'is_adult', 'is_novel', 'tags', 'links'):
