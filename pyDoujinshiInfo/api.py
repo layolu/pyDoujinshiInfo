@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
-from typing import BinaryIO, Callable, Iterator, Optional, Type, Union              
+from typing import BinaryIO, Callable, Iterator, List, Optional, Type, Union
 import jwt
 import requests
 import tortilla
 from tortilla.cache import BaseCache, DictCache
 from tortilla.utils import Bunch, bunchify
+from .paginator import PaginatedResults
+from .utils import taglist_to_dict
 
 
 class API:
@@ -63,19 +65,19 @@ class API:
     def get_tag_changelog(self, type: str, slug: str, page=1, limit=24) -> PaginatedResults:
         return PaginatedResults(self._api.tag(type)(slug).changelog.get, params={'page': page, 'limit': limit})
 
-    def create_tag(self, type: str, name_japanese: str, **kwargs: str) -> PaginatedResults:
+    def create_tag(self, type: str, name_japanese: str, tags: List[str]=[], **kwargs: str) -> PaginatedResults:
         data = {'type': type, 'name_japanese': name_japanese}
         for key in ('name_romaji', 'name_english', 'aliases', 'description_english', 
-        'description_japanese', 'date_start', 'date_end', 'tags', 'links'):
+        'description_japanese', 'date_start', 'date_end', 'links'):
             if key in kwargs:
                 data[key] = kwargs[key]
         self.do_refresh_token()
         return PaginatedResults(self._api.tag.post, paginated_key='books', data=data)
 
-    def update_tag(self, type: str, slug: str, name_japanese: str, **kwargs: str) -> PaginatedResults:
+    def update_tag(self, type: str, slug: str, name_japanese: str, tags: List[str]=[], **kwargs: str) -> PaginatedResults:
         data = {'name_japanese': name_japanese}
         for key in ('name_romaji', 'name_english', 'aliases', 'description_english', 
-        'description_japanese', 'date_start', 'date_end', 'tags', 'links'):
+        'description_japanese', 'date_start', 'date_end', 'links'):
             if key in kwargs:
                 data[key] = kwargs[key]
         self.do_refresh_token()
@@ -91,10 +93,11 @@ class API:
     def get_doujinshi_changelog(self, slug: str, page=1, limit=24) -> PaginatedResults:
         return PaginatedResults(self._api.book(slug).changelog.get, params={'page': page, 'limit': limit})
 
-    def create_doujinshi(self, name_japanese: str, **kwargs: Union[str, BinaryIO]) -> Bunch:
+    def create_doujinshi(self, name_japanese: str, tag_ids: List[str]=[], **kwargs: Union[str, BinaryIO]) -> Bunch:
         params = {'name_japanese': name_japanese}
+        params.update(taglist_to_dict(tag_ids))
         for key in ('name_romaji', 'name_english', 'date_released', 'pages', 'price', 
-            'is_copybook', 'is_anthology', 'is_adult', 'is_novel', 'tags', 'links'):
+            'is_copybook', 'is_anthology', 'is_adult', 'is_novel', 'links'):
             if key in kwargs:
                 params[key] = kwargs[key]
         files = {}
@@ -104,10 +107,13 @@ class API:
         self.do_refresh_token()
         return self._api.book.post(params=params, files=files)
 
-    def update_doujinshi(self, slug: str, name_japanese: str, **kwargs: Union[str, BinaryIO]) -> Bunch:
+    def update_doujinshi(self, slug: str, name_japanese: str, tag_ids: List[str]=[], **kwargs: Union[str, BinaryIO]) -> Bunch:
         params = {'name_japanese': name_japanese}
+        # Warning, this compretely REPLACES old tag list, 
+        # so if you want simply add or remove tags, use methods below
+        params.update(taglist_to_dict(tag_ids))
         for key in ('name_romaji', 'name_english', 'date_released', 'pages', 'price', 
-            'is_copybook', 'is_anthology', 'is_adult', 'is_novel', 'tags', 'links'):
+            'is_copybook', 'is_anthology', 'is_adult', 'is_novel', 'links'):
             if key in kwargs:
                 params[key] = kwargs[key]
         files = {}
@@ -116,6 +122,12 @@ class API:
                 files[key] = kwargs[key]
         self.do_refresh_token()
         return self._api.book(slug).post(params=params, files=files)
+
+    def add_tags_to_doujinshi(self, slug: str, tag_ids: List[str]=[]) -> Bunch:
+        # TODO WIP
+        doujinshi = self.get_doujinshi(slug)
+        new_ids = list(set([tag.id for tag in doujinshi.tags.data] + tag_ids))
+        return self.update_doujinshi(slug, doujinshi.name.japanese, new_ids)
 
     def import_doujinshi(self, url: str) -> Bunch:
         self.do_refresh_token()
@@ -206,54 +218,3 @@ class API:
     def mark_all_notifications_as_read(self) -> Bunch:
         self.do_refresh_token()
         return self._api.notifications.read.all.put().data
-
-
-class PaginatedResults:
-    def __init__(self, req: Callable[[str,int,BinaryIO], Bunch],
-        paginated_key: str=None, params={}, **kwargs: Union[str,int,BinaryIO]) -> None:
-        self._req = req
-        self.params = params
-        self.req_options = {}
-        for key in ('data', 'files'):
-            if key in kwargs:
-                self.req_options[key] = kwargs[key]
-        self.method = method
-        self.paginated_key = paginated_key
-        try:
-            #self.res = getattr(self._wrap, self.method)(params=self.params, **self.req_options)
-            self.res = self._req(params=self.params, **self.req_options)
-        except requests.exceptions.HTTPError:
-            raise
-        if self.paginated_key:
-            # return data except paginated values
-            # TODO: considering making the entire contents of the dictionary members of the object
-            self.data = tortilla.utils.bunchify({k: v for k, v in self.res.items() if k != self.paginated_key})
-        else:
-            self.data = tortilla.utils.Bunch()
-        self.first_res = tortilla.utils.bunchify(self.res.copy())
-        self.total_num = self._get_page(self.first_res).meta.total
-
-    def _get_page(self, res: Bunch) -> Bunch:
-        page: Bunch
-        if self.paginated_key:
-            page = res[self.paginated_key]
-        else:
-            page = res
-        return page
-        
-    def results(self) -> Iterator[Bunch]:
-        page: Bunch
-        page = self._get_page(self.first_res)
-        if page.data:
-            yield from page.data
-        while page.meta.current_page < page.meta.last_page:
-            # TODO: Maybe I should use a vanilla requests after the 1st request
-            self.params.update({'page': page.meta.current_page + 1, 
-                'limit': page.meta.per_page})
-            try:
-                #self.res = getattr(self._wrap, self.method)(
-                self.res = self._req(params=self.params, **self.req_options)
-            except requests.exceptions.HTTPError:
-                raise
-            page = self._get_page(self.res)
-            yield from page.data
