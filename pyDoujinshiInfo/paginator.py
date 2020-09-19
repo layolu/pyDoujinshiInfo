@@ -1,11 +1,12 @@
-from typing import BinaryIO, Callable, Iterator, Union
+from typing import BinaryIO, Callable, Dict, Iterator, Union
 import requests
 from tortilla.utils import Bunch, bunchify
 
 
 class PaginatedResults:
     def __init__(self, req: Callable[..., Bunch],
-                 paginated_key: str = None, params={}, **kwargs: Union[str, int, BinaryIO]) -> None:
+                 paginated_key: str = None, params={},
+                 **kwargs: Union[Dict[str, str], Dict[str, int], Dict[str, BinaryIO]]) -> None:
         self._req = req
         self.params = params
         self.req_options = {}
