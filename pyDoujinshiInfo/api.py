@@ -120,6 +120,7 @@ class API:
 
     def update_doujinshi(self, slug: str, name_japanese: str, tag_ids: List[str] = [], cover: Optional[BinaryIO] = None,
                          samples: Optional[List[BinaryIO]] = None, **kwargs: str) -> Bunch:
+        # TODO: Is the parameter name_japanese really mandatory when updating?
         params = {'name_japanese': name_japanese}
         # Warning, this completely REPLACES old tag list,
         # so if you want simply add or remove tags, use methods below
