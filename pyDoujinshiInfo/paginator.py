@@ -36,6 +36,7 @@ class PaginatedResults:
             page = res
         return page
 
+    @property
     def results(self) -> Iterator[Bunch]:
         page: Bunch
         page = self._get_page(self.first_res)
