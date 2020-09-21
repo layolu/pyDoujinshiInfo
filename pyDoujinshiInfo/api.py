@@ -31,12 +31,6 @@ class API:
         self.following = Following(self)
         self.notifications = Notifications(self)
 
-    def set_access_token(self, access_token: str) -> None:
-        self.access_token = access_token
-        self.root.config['headers']['Authorization'] = 'Bearer {}'.format(access_token)
-        self.me = bunchify(jwt.decode(access_token, verify=False))
-        self.expires_at = datetime.fromtimestamp(self.me.exp)
-
 
 class Part:
     def __init__(self, api: API):
@@ -48,6 +42,12 @@ class Auth(Part):
     def __init__(self, api: API):
         super().__init__(api)
         self.auth = api.root.auth
+
+    def set_access_token(self, access_token: str) -> None:
+        self._api.access_token = access_token
+        self.root.config['headers']['Authorization'] = 'Bearer {}'.format(access_token)
+        self._api.me = bunchify(jwt.decode(access_token, verify=False))
+        self._api.expires_at = datetime.fromtimestamp(self.me.exp)
 
     def register(self, name: str, email: str, password: str, password_confirmation: str) -> None:
         res: Bunch = self.auth.create.post(params={
