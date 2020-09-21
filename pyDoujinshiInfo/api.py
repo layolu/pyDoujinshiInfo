@@ -47,20 +47,20 @@ class Auth(Part):
         self._api.access_token = access_token
         self.root.config['headers']['Authorization'] = 'Bearer {}'.format(access_token)
         self._api.me = bunchify(jwt.decode(access_token, verify=False))
-        self._api.expires_at = datetime.fromtimestamp(self.me.exp)
+        self._api.expires_at = datetime.fromtimestamp(self._api.me.exp)
 
     def register(self, name: str, email: str, password: str, password_confirmation: str) -> None:
         res: Bunch = self.auth.create.post(params={
             'name': name, 'email': email, 'password': password, 'password_confirmation': password_confirmation
         })
-        self._api.set_access_token(res.access_token)
+        self.set_access_token(res.access_token)
         self._api.refresh_token = res.refresh_token
 
     def login(self, email: str, password: str) -> None:
         res: Bunch = self.auth.login.post(params={
             'email': email, 'password': password
         })
-        self._api.set_access_token(res.access_token)
+        self.set_access_token(res.access_token)
         self._api.refresh_token = res.refresh_token
 
     def refresh(self) -> None:
@@ -72,7 +72,7 @@ class Auth(Part):
             res: Bunch = self.root.auth.login.post(params={
                 'user': self._api.me.sub, 'refresh_token': self._api.refresh_token
             }, cache_lifetime=None)
-            self._api.set_access_token(res.access_token)
+            self.set_access_token(res.access_token)
         else:
             pass
 
