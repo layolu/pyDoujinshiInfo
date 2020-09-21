@@ -33,13 +33,13 @@ class API:
 
 
 class Part:
-    def __init__(self, api: API):
+    def __init__(self, api: API) -> None:
         self._api = api
         self.root = api.root
 
 
 class Auth(Part):
-    def __init__(self, api: API):
+    def __init__(self, api: API) -> None:
         super().__init__(api)
         self.auth = api.root.auth
 
@@ -78,7 +78,7 @@ class Auth(Part):
 
 
 class Tag(Part):
-    def __init__(self, api: API):
+    def __init__(self, api: API) -> None:
         super().__init__(api)
         self.tag = api.root.tag
 
@@ -125,7 +125,7 @@ class Tag(Part):
 
 
 class Doujinshi(Part):
-    def __init__(self, api: API):
+    def __init__(self, api: API) -> None:
         super().__init__(api)
         self.book = api.root.book
 
@@ -203,7 +203,7 @@ class Doujinshi(Part):
 
 
 class Changelog(Part):
-    def __init__(self, api: API):
+    def __init__(self, api: API) -> None:
         super().__init__(api)
         self.changelog = self.root.changelog
 
@@ -217,7 +217,7 @@ class Changelog(Part):
 
 
 class User(Part):
-    def __init__(self, api: API):
+    def __init__(self, api: API) -> None:
         super().__init__(api)
         self.user = self.root.user
 
@@ -241,7 +241,7 @@ class User(Part):
 
 
 class Library(Part):
-    def __init__(self, api: API):
+    def __init__(self, api: API) -> None:
         super().__init__(api)
         self.library = self.root.library
 
@@ -259,7 +259,7 @@ class Library(Part):
 
 
 class Following(Part):
-    def __init__(self, api: API):
+    def __init__(self, api: API) -> None:
         super().__init__(api)
         self.following = self.root.following
 
@@ -277,7 +277,7 @@ class Following(Part):
 
 
 class Notifications(Part):
-    def __init__(self, api: API):
+    def __init__(self, api: API) -> None:
         super().__init__(api)
         self.notifications = self.root.notifications
 
