@@ -88,8 +88,8 @@ class Tag(Part):
     def all(self, page=1, limit=24) -> PaginatedResults:
         return PaginatedResults(self.tag.get, params={'page': page, 'limit': limit})
 
-    def by_type(self, type: str, page=1, limit=24) -> PaginatedResults:
-        return PaginatedResults(self.tag(type).get, params={'page': page, 'limit': limit})
+    def by_type(self, tag_type: str, page=1, limit=24) -> PaginatedResults:
+        return PaginatedResults(self.tag(tag_type).get, params={'page': page, 'limit': limit})
 
     def one(self, tag_type: str, slug: str, page=1, limit=24) -> PaginatedResults:
         return PaginatedResults(self.tag(tag_type)(slug).get, paginated_key='books',
