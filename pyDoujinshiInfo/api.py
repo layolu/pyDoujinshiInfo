@@ -141,7 +141,7 @@ class Doujinshi(Part):
         return PaginatedResults(self.book(slug).changelog.get, params={'page': page, 'limit': limit})
 
     def create(self, name_japanese: str, tag_ids: List[str] = [], cover: Optional[BinaryIO] = None,
-               samples: Optional[List[BinaryIO]] = None, **kwargs: str) -> Bunch:
+               samples: Optional[List[BinaryIO]] = [], **kwargs: str) -> Bunch:
         params = {'name_japanese': name_japanese}
         params.update(tag_list_to_dict(tag_ids))
         for key in ('name_romaji', 'name_english', 'date_released', 'pages', 'price',
@@ -150,9 +150,10 @@ class Doujinshi(Part):
                 params[key] = kwargs[key]
         files = {}
         if cover:
-            files['cover'] = kwargs[key]
+            files['cover'] = cover
         if samples:
-            # TODO: how to post multiple sample images?
+            for i, sample in enumerate(samples):
+                files['samples[{}]'.format(i)] = sample
             pass
         self._api.auth.refresh()
         return self.root.post(params=params, files=files)
@@ -172,8 +173,8 @@ class Doujinshi(Part):
         if cover:
             files['cover'] = kwargs[key]
         if samples:
-            # TODO: how to post multiple sample images?
-            pass
+            for i, sample in enumerate(samples):
+                files['samples[{}]'.format(i)] = sample
         self._api.auth.refresh()
         return self.root(slug).post(params=params, files=files)
 
