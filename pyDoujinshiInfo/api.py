@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import BinaryIO, List, Optional, Type
 import jwt
-from tortilla import wrap, Wrap
+from tortilla import wrap
 from tortilla.cache import BaseCache, DictCache
 from tortilla.utils import Bunch, bunchify
 from .paginator import PaginatedResults
@@ -93,7 +93,7 @@ class Tag(Part):
 
     def one(self, tag_type: str, slug: str, page=1, limit=24) -> PaginatedResults:
         return PaginatedResults(self.tag(tag_type)(slug).get, paginated_key='books',
-                                params={'page': page, 'limit': limit})
+                         params={'page': page, 'limit': limit})
 
     __call__ = one
 
@@ -142,41 +142,46 @@ class Doujinshi(Part):
 
     def create(self, name_japanese: str, tag_ids: List[str] = [], cover: Optional[BinaryIO] = None,
                samples: Optional[List[BinaryIO]] = [], **kwargs: str) -> Bunch:
-        params = {'name_japanese': name_japanese}
-        params.update(tag_list_to_dict(tag_ids))
+        data = {'name_japanese': name_japanese}
+        data.update(tag_list_to_dict(tag_ids))
         for key in ('name_romaji', 'name_english', 'date_released', 'pages', 'price',
                     'is_copybook', 'is_anthology', 'is_adult', 'is_novel', 'links'):
-            if key in kwargs and type(kwargs[key]) is str:
-                params[key] = kwargs[key]
-        files = {}
+            if key in kwargs:
+                data[key] = str(kwargs[key])
+        files = []
         if cover:
-            files['cover'] = cover
+            files.append(('cover', cover))
         if samples:
+            sample: BinaryIO
             for i, sample in enumerate(samples):
-                files['samples[{}]'.format(i)] = sample
-            pass
+                files.append(('samples[{}]'.format(i), sample))
         self._api.auth.refresh()
-        return self.root.post(params=params, files=files)
+        return self.book.post(data=data, files=files, format=(None, 'json'))
 
     def update(self, slug: str, name_japanese: str, tag_ids: List[str] = [], cover: Optional[BinaryIO] = None,
                samples: Optional[List[BinaryIO]] = None, **kwargs: str) -> Bunch:
         # TODO: Is the parameter name_japanese really mandatory when updating?
-        params = {'name_japanese': name_japanese}
+        data = {'name_japanese': name_japanese, 'tags': tag_ids}
+        data.update(tag_list_to_dict(tag_ids))
         # Warning, this completely REPLACES old tag list,
         # so if you want simply add or remove tags, use methods below
-        params.update(tag_list_to_dict(tag_ids))
+        # data.update(tag_list_to_dict(tag_ids))
         for key in ('name_romaji', 'name_english', 'date_released', 'pages', 'price',
                     'is_copybook', 'is_anthology', 'is_adult', 'is_novel', 'links'):
             if key in kwargs:
-                params[key] = kwargs[key]
-        files = {}
+                data[key] = kwargs[key]
+        files = []
         if cover:
-            files['cover'] = kwargs[key]
+            files.append(('cover', cover))
         if samples:
+            # files['samples']: samples
+            # files.append(('samples', samples))
+            sample: BinaryIO
             for i, sample in enumerate(samples):
-                files['samples[{}]'.format(i)] = sample
+                files.append(('samples[{}]'.format(i), sample))
+        print(files)
         self._api.auth.refresh()
-        return self.root(slug).post(params=params, files=files)
+        return self.book(slug).post(data=data, files=files, format=(None, 'json'))
 
     def add_tags(self, slug: str, tag_ids: List[str] = []) -> Bunch:
         # TODO WIP

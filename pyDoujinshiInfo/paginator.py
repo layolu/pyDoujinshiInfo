@@ -1,4 +1,4 @@
-from typing import BinaryIO, Callable, Dict, Iterator, Union
+from typing import Any, BinaryIO, Callable, Dict, Iterator, Union
 import requests
 from tortilla.utils import Bunch, bunchify
 
@@ -17,6 +17,8 @@ class PaginatedResults:
         try:
             # self.res = getattr(self._wrap, self.method)(params=self.params, **self.req_options)
             self.res = self._req(params=self.params, **self.req_options)
+            self.first_res = bunchify(self.res.copy())
+            self.total_num = self._get_page(self.first_res).meta.total
         except requests.exceptions.HTTPError:
             raise
         if self.paginated_key:
@@ -25,8 +27,19 @@ class PaginatedResults:
             self.data = bunchify({k: v for k, v in self.res.items() if k != self.paginated_key})
         else:
             self.data = Bunch()
-        self.first_res = bunchify(self.res.copy())
-        self.total_num = self._get_page(self.first_res).meta.total
+
+    def __str__(self) -> str:
+        # TODO: id or slug, that is the question.
+        if self.data.id:
+            return self.data.id
+        else:
+            return ''
+
+    def __call__(self, key=None) -> Union[Bunch, Any]:
+        if key:
+            return self.data[key]
+        else:
+            return self.data
 
     def _get_page(self, res: Bunch) -> Bunch:
         page: Bunch
