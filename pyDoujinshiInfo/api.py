@@ -11,7 +11,7 @@ from .utils import tag_list_to_dict
 class API:
     ENDPOINT = 'https://api.doujinshi.info/v1/'
 
-    def __init__(self, refresh_deadline_sec=30,
+    def __init__(self, email='', password='', refresh_deadline_sec=30,
                  tortilla_debug=False, tortilla_cache: Type[BaseCache] = DictCache(),
                  tortilla_cache_lifetime: Optional[int] = None) -> None:
         self.root = wrap(self.ENDPOINT, cache=tortilla_cache, cache_lifetime=tortilla_cache_lifetime,
@@ -30,6 +30,9 @@ class API:
         self.library = Library(self)
         self.following = Following(self)
         self.notifications = Notifications(self)
+
+        if email and password:
+            self.auth.login(email, password)
 
 
 class Part:
