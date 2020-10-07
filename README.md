@@ -34,7 +34,7 @@ $ pip install git+https://github.com/layolu/pyDoujinshiInfo
 ```python3
 >>> pmmm = api.tag.one('series', 'mahou-shoujo-madoka-magika')
 # or shortly
->>> pmmm = api.tag('series', 'mahou-shoujo-madoka-magika') does the same job.
+>>> pmmm = api.tag('series', 'mahou-shoujo-madoka-magika')
 >>> pmmm
 <pyDoujinshiInfo.paginator.PaginatedResults object at 0x76834d50>
 ```
