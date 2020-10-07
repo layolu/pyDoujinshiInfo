@@ -49,12 +49,14 @@ class PaginatedResults:
             page = res
         return page
 
-    @property
-    def results(self) -> Iterator[Bunch]:
+    def results(self, limit=24) -> Iterator[Bunch]:
         page: Bunch
         page = self._get_page(self.first_res)
         if page.data:
-            yield from page.data
+            yield from page.data[0:limit]
+            limit -= len(page.data)
+            if limit <= 0:
+                return
         while page.meta.current_page < page.meta.last_page:
             # TODO: Maybe I should use a vanilla requests after the 1st request
             self.params.update({'page': page.meta.current_page + 1,
@@ -65,4 +67,7 @@ class PaginatedResults:
             except requests.exceptions.HTTPError:
                 raise
             page = self._get_page(self.res)
-            yield from page.data
+            yield from page.data[0:limit]
+            limit -= len(page.data)
+            if limit <= 0:
+                return
