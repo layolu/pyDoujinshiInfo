@@ -20,7 +20,7 @@ $ pip install git+https://github.com/layolu/pyDoujinshiInfo
 ```python3
 >>> tag_types = api.tag.types()
 >>> tag_types
-[{'id': 'J5KBm80mEPpr', 'name': {'japanese': '検閲', 'romaji': 'Kenetsu', 'english': 'Censoring'}, 'slug': 'censoring'}, ... ]
+[{'id': 'J5KBm80mEPpr', 'name': {'japanese': '検閲', 'romaji': 'Kenetsu', 'english': 'Censoring'}, 'slug': 'censoring'}, {'id': 'PBRN40y60nZQ', 'name': {'japanese': 'キャラクター', 'romaji': 'Kyarakuta', 'english': 'Character'}, 'slug': 'character'}, {'id': 'lJyp4obm271L', 'name': {'japanese': 'サークル', 'romaji': 'Sakuru', 'english': 'Circle'}, 'slug': 'circle'}, {'id': 'Z3lAm5J4oyxg', 'name': {'japanese': 'コレクション', 'romaji': 'Korekushon', 'english': 'Collection'}, 'slug': 'collection'}, {'id': 'OMbP6nM4jYBn', 'name': {'japanese': 'コンテンツ', 'romaji': 'Kontentsu', 'english': 'Content'}, 'slug': 'content'}, {'id': 'LYAn4lL4Gljz', 'name': {'japanese': 'イベント', 'romaji': 'Ibento', 'english': 'Convention'}, 'slug': 'convention'}, {'id': 'oWYqmql9lJPj', 'name': {'japanese': 'シリーズ', 'romaji': 'Shirizu', 'english': 'Series'}, 'slug': 'series'}, {'id': 'JYB3my24XqGN', 'name': {'japanese': '作家', 'romaji': 'Sakka', 'english': 'Artist'}, 'slug': 'artist'}, {'id': 'R8AZ4G2mvWw2', 'name': {'japanese': '言語', 'romaji': 'Gengo', 'english': 'Language'}, 'slug': 'language'}]
 >>> tag_types[1].id
 'PBRN40y60nZQ'
 >>> tag_types[1].slug
