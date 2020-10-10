@@ -2,3 +2,5 @@
 *.pyc
 /.dmypy.json
 venv/
+/dist/
+*.egg-info/

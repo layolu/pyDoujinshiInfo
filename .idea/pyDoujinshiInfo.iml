@@ -5,6 +5,8 @@
       <sourceFolder url="file://$MODULE_DIR$/pyDoujinshiInfo" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.mypy_cache" />
       <excludeFolder url="file://$MODULE_DIR$/.vscode" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/pyDoujinshiInfo.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7 (pyDoujinshiInfo)" jdkType="Python SDK" />
