@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
 setup(
     name='pyDoujinshiInfo',
     packages=['pyDoujinshiInfo'],
-    version='0.1',
+    version='0.1.0',
     author='layolu layole',
     author_email='layolulayole@gmail.com',
     url='https://github.com/layolu/pyDoujinshiInfo',
