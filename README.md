@@ -4,7 +4,11 @@ Work in progress. In particular, the data structure may change significantly in 
 
 ## Install
 I'd like to be able to install this from pypi.  
-If you're an adventurer, you can currently install it with the following command:
+If you're an adventurer, you can currently install it with the following command from TestPypi:
+```bash
+$ pip install -i https://test.pypi.org/simple/ pyDoujinshiInfo
+```
+Or directly from the github repo:
 ```bash
 $ pip install git+https://github.com/layolu/pyDoujinshiInfo
 ```
