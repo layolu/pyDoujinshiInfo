@@ -3,7 +3,8 @@ Unofficial Python3 REST API wrapper for [doujinshi.info](https://www.doujinshi.i
 Work in progress. In particular, the data structure may change significantly in the future.
 
 ## Install
-If you're an adventurer, now you can install it with the following command from pypi:
+If you're an adventurer, now you can install it with the following command 
+from [pypi](https://pypi.org/project/pyDoujinshiInfo/):
 ```bash
 $ pip install pyDoujinshiInfo
 ```
