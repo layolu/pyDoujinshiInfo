@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import BinaryIO, List, Optional, Type
+from typing import BinaryIO, Dict, List, Optional, Type
 import jwt
 from tortilla import wrap
 from tortilla.cache import BaseCache, DictCache
@@ -143,14 +143,18 @@ class Doujinshi(Part):
     def changelog(self, slug: str, page=1, limit=24) -> PaginatedResults:
         return PaginatedResults(self.book(slug).changelog.get, params={'page': page, 'limit': limit})
 
-    def create(self, name_japanese: str, tag_ids: List[str] = [], cover: Optional[BinaryIO] = None,
-               samples: Optional[List[BinaryIO]] = [], **kwargs: str) -> Bunch:
+    def create(self, name_japanese: str, tag_ids: List[str] = [], links: Optional[Dict[str, str]] = {},
+               cover: Optional[BinaryIO] = None, samples: Optional[List[BinaryIO]] = [], **kwargs: str) -> Bunch:
         data = {'name_japanese': name_japanese}
         data.update(tag_list_to_dict(tag_ids))
         for key in ('name_romaji', 'name_english', 'date_released', 'pages', 'price',
                     'is_copybook', 'is_anthology', 'is_adult', 'is_novel', 'links'):
             if key in kwargs:
                 data[key] = str(kwargs[key])
+        if links:
+            for site_name, url in links:
+                data['links[{}]'.format(site_name)] = url
+
         files = []
         if cover:
             files.append(('cover', cover))
@@ -161,8 +165,8 @@ class Doujinshi(Part):
         self._api.auth.refresh()
         return self.book.post(data=data, files=files, format=(None, 'json'))
 
-    def update(self, slug: str, name_japanese: str, tag_ids: List[str] = [], cover: Optional[BinaryIO] = None,
-               samples: Optional[List[BinaryIO]] = None, **kwargs: str) -> Bunch:
+    def update(self, slug: str, name_japanese: str, tag_ids: List[str] = [], links: Optional[Dict[str, str]] = {},
+               cover: Optional[BinaryIO] = None, samples: Optional[List[BinaryIO]] = None, **kwargs: str) -> Bunch:
         # TODO: Is the parameter name_japanese really mandatory when updating?
         data = {'name_japanese': name_japanese, 'tags': tag_ids}
         data.update(tag_list_to_dict(tag_ids))
@@ -173,6 +177,10 @@ class Doujinshi(Part):
                     'is_copybook', 'is_anthology', 'is_adult', 'is_novel', 'links'):
             if key in kwargs:
                 data[key] = kwargs[key]
+        if links:
+            for site_name, url in links:
+                data['links[{}]'.format(site_name)] = url
+
         files = []
         if cover:
             files.append(('cover', cover))
