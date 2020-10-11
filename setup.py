@@ -9,7 +9,7 @@ with open('README.md') as fl:
 setup(
     name='pyDoujinshiInfo',
     packages=['pyDoujinshiInfo'],
-    version='0.1.0.4',
+    version='0.1.0.5',
     author='layolu layole',
     author_email='layolulayole@gmail.com',
     url='https://github.com/layolu/pyDoujinshiInfo',

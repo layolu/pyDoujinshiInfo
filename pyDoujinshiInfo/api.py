@@ -152,7 +152,7 @@ class Doujinshi(Part):
             if key in kwargs:
                 data[key] = str(kwargs[key])
         if links:
-            for site_name, url in links:
+            for site_name, url in links.items():
                 data['links[{}]'.format(site_name)] = url
 
         files = []
@@ -178,7 +178,7 @@ class Doujinshi(Part):
             if key in kwargs:
                 data[key] = kwargs[key]
         if links:
-            for site_name, url in links:
+            for site_name, url in links.items():
                 data['links[{}]'.format(site_name)] = url
 
         files = []
